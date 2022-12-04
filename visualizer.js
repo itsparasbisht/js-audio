@@ -5,19 +5,36 @@ function main() {
   canvas.height = window.innerHeight;
 
   class Bar {
-    constructor(x, y, width, height, color) {
+    constructor(x, y, width, height, color, index) {
       this.x = x;
       this.y = y;
       this.width = width;
       this.height = height;
       this.color = color;
+      this.index = index;
     }
     update(micInput) {
-      this.height = micInput * 1000;
+      const sound = micInput * 1000;
+      if (sound > this.height) {
+        this.height = sound;
+      } else {
+        this.height -= this.height * 0.03;
+      }
     }
     draw(context) {
-      context.fillStyle = this.color;
-      context.fillRect(this.x, this.y, this.width, this.height);
+      context.strokeStyle = this.color;
+      context.save();
+
+      context.translate(canvas.width / 2, canvas.height / 2);
+      context.rotate(this.index * 0.03);
+
+      context.beginPath();
+      context.moveTo(this.x, this.y);
+      context.lineTo(this.y, this.height);
+      context.stroke();
+      context.strokeRect(this.y, this.y, this.height / 2, this.height);
+
+      context.restore();
     }
   }
 
@@ -28,7 +45,7 @@ function main() {
   function createBars() {
     for (let i = 0; i < 256; i++) {
       let color = `hsl(${i * 2}, 100%, 50%)`;
-      bars.push(new Bar(i * barWidth, canvas.height / 2, 1, 20, color));
+      bars.push(new Bar(0, i * 1.5, 5, 20, color, i));
     }
   }
   createBars();
